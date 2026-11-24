@@ -18,6 +18,7 @@
 </div></header>
 
 <div class="tabs-wrap"><nav class="tabs" role="tablist" aria-label="Seções do relatório">
+  <button class="tab" role="tab" data-panel="executivo" aria-selected="true">Resumo executivo</button>
   <button class="tab" role="tab" data-panel="geral">Visão geral e dados</button>
   <button class="tab" role="tab" data-panel="avaliacao">Protocolo de avaliação</button>
   <button class="tab" role="tab" data-panel="lr">Regressão Logística</button>
@@ -27,7 +28,180 @@
 </nav></div>
 
 <main>
-<section id="panel-geral" class="panel" role="tabpanel">
+<section id="panel-executivo" class="panel" role="tabpanel">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; border-bottom:1px solid var(--line); padding-bottom:1rem;">
+    <div>
+      <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--accent); display:block; margin-bottom:0.25rem;">Reporte Executivo • TCC Ciência da Computação</span>
+      <h2 style="margin:0; font-size:1.8rem;">Sumário Executivo do Estudo</h2>
+      <p style="color:var(--muted); margin:0.3rem 0 0; font-size:0.95rem;">Previsão de Propensão de Compra e Alocação Estratégica de Recursos no Varejo Digital</p>
+    </div>
+    <div style="text-align:right; font-size:0.85rem; color:var(--muted);">
+      <div><strong>Autores:</strong> A. Lima, J. Ferreira, R. Dalpino</div>
+      <div><strong>Instituição:</strong> Universidade Cruzeiro do Sul</div>
+    </div>
+  </div>
+
+  <p class="lead">Este relatório sintetiza os achados do estudo comparativo entre três arquiteturas de aprendizado de máquina aplicadas à predição de conversão em comércio eletrônico (variável <em>Receita</em>), fornecendo subsídios quantitativos para maximizar o retorno sobre o investimento em campanhas e evitar desperdício de margem com abordagens genéricas.</p>
+
+  <div class="bn-cards quatro" style="margin:1.5rem 0 2rem;">
+    <div class="bn-card">
+      <div class="bn-label">Sessões Analisadas</div>
+      <div class="bn-value">12.330</div>
+      <div class="bn-sub">Dados reais de navegação com taxa basal de conversão de 15,5% — base naturalmente desbalanceada.</div>
+    </div>
+    <div class="bn-card">
+      <div class="bn-label">Área sob a Curva (XGBoost)</div>
+      <div class="bn-value">93,3%</div>
+      <div class="bn-sub">Capacidade de discriminação superior em 3,8 pontos percentuais frente ao modelo linear de referência.</div>
+    </div>
+    <div class="bn-card">
+      <div class="bn-label">Compradores Identificados</div>
+      <div class="bn-value">84,6%</div>
+      <div class="bn-sub">323 de 382 compradores reais detectados no conjunto de teste — antes de abandonarem a loja.</div>
+    </div>
+    <div class="bn-card">
+      <div class="bn-label">Estabilidade do Modelo</div>
+      <div class="bn-value">0,1 p.p.</div>
+      <div class="bn-sub">Diferença entre validação interna e teste externo: ausência de sobreajuste comprovada.</div>
+    </div>
+  </div>
+
+  <div class="conclusao" style="margin-top:0;">
+    <h3>Veredito Estratégico: O Modelo Recomendado</h3>
+    <p>Os modelos não lineares comprovaram superioridade estatística e operacional na identificação de compradores. A recomendação para implantação orienta-se pelo custo de cada tipo de erro:</p>
+    <div class="grid two" style="margin-top:1rem;">
+      <div style="background:var(--accent-soft); padding:1.2rem; border-radius:var(--radius); border-left:4px solid var(--accent);">
+        <strong style="color:var(--accent); font-size:1.05rem; display:block; margin-bottom:0.4rem;">🏆 Modelo Principal: XGBoost</strong>
+        <p style="font-size:0.92rem; margin:0 0 0.5rem; color:var(--text);">
+          Obteve a maior <strong>área sob a curva (93,25%)</strong> e a maior <strong>taxa de captura (84,56%)</strong> no teste com dados inéditos, além de ser o algoritmo mais veloz (2,1 s). Identifica <strong>24 compradores a mais</strong> que a Floresta Aleatória — escolha ideal para campanhas escaláveis e ações digitais automatizadas.
+        </p>
+      </div>
+      <div style="background:var(--surface); padding:1.2rem; border-radius:var(--radius); border:1px solid var(--line);">
+        <strong style="font-size:1.05rem; display:block; margin-bottom:0.4rem;">🛡️ Alternativa de Alta Precisão: Floresta Aleatória</strong>
+        <p style="font-size:0.92rem; margin:0 0 0.5rem; color:var(--muted);">
+          Alcançou a maior <strong>precisão (55,58%)</strong> e <strong>acurácia (86,94%)</strong> no teste, gerando <strong>45 contatos incorretos a menos</strong>. Recomendado quando o custo da abordagem ou o valor do incentivo é elevado.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid two" style="margin:2rem 0; align-items:start;">
+    <div>
+      <h3 style="margin-top:0;">Comparativo de Desempenho — Dados Inéditos</h3>
+      <p style="font-size:0.9rem; color:var(--muted); margin-bottom:0.75rem;">Avaliação em 2.466 sessões nunca vistas pelos algoritmos (382 compradores reais e 2.084 não compradores):</p>
+      <div class="table-wrap">
+        <table class="spec">
+          <thead>
+            <tr>
+              <th>Dimensão Avaliada</th>
+              <th>Reg. Logística</th>
+              <th>Floresta Aleatória</th>
+              <th class="key">XGBoost (Vencedor)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Poder de Discriminação (AUC)</strong></td>
+              <td>89,49%</td>
+              <td>92,13%</td>
+              <td class="key"><strong>93,25%</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Compradores Capturados</strong></td>
+              <td>73,82% (282)</td>
+              <td>78,27% (299)</td>
+              <td class="key"><strong>84,56% (323)</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Assertividade (Precisão)</strong></td>
+              <td>50,00%</td>
+              <td class="key"><strong>55,58%</strong></td>
+              <td>53,21%</td>
+            </tr>
+            <tr>
+              <td><strong>Vendas Perdidas</strong></td>
+              <td>100 sessões</td>
+              <td>83 sessões</td>
+              <td class="key"><strong>59 sessões (−41%)</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Contatos Desnecessários</strong></td>
+              <td>282 sessões</td>
+              <td class="key"><strong>239 sessões (−16%)</strong></td>
+              <td>284 sessões</td>
+            </tr>
+            <tr>
+              <td><strong>Estabilidade (Validação vs. Teste)</strong></td>
+              <td>1,06 p.p.</td>
+              <td>0,72 p.p.</td>
+              <td class="key"><strong>0,13 p.p. (Ótimo)</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Tempo de Treinamento</strong></td>
+              <td>5,1 s</td>
+              <td>16,4 s</td>
+              <td class="key"><strong>2,1 s (8× mais rápido)</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Transparência para Gestores</strong></td>
+              <td>Alta (pesos lineares)</td>
+              <td>Média (importância Gini)</td>
+              <td>Média (ganho por gradiente)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <figure class="fig">
+      <div class="chart-box"><canvas id="c-executivo" role="img" aria-label="Comparativo executivo dos modelos"></canvas></div>
+      <figcaption>Desempenho comparativo (%) das três principais métricas no conjunto de dados inéditos de teste.</figcaption>
+    </figure>
+  </div>
+
+  <h3 style="margin-top:2.5rem;">Guia de Decisão: Qual Modelo Aplicar no Varejo</h3>
+  <p style="color:var(--muted); font-size:0.95rem;">A escolha do modelo para produção depende do custo marginal de cada ação de marketing:</p>
+  
+  <div class="cases" style="margin-top:1rem;">
+    <div class="case best">
+      <h3>1. Ações de Baixo Custo por Contato</h3>
+      <p style="font-size:0.92rem;"><strong>Modelo: XGBoost</strong></p>
+      <p style="font-size:0.88rem; color:var(--muted);"><strong>Exemplos:</strong> Disparo de e-mail automatizado, notificações em aplicativo, anúncios de retargeting.</p>
+      <p style="font-size:0.88rem; color:var(--text);"><strong>Justificativa:</strong> O custo do disparo é irrisório. Perder um comprador em potencial custa muito mais do que abordar um visitante curioso. O XGBoost minimiza as vendas perdidas: apenas 59, contra 100 do modelo linear.</p>
+    </div>
+    <div class="case">
+      <h3>2. Ações de Alto Custo e Consumo de Margem</h3>
+      <p style="font-size:0.92rem;"><strong>Modelo: Floresta Aleatória</strong></p>
+      <p style="font-size:0.88rem; color:var(--muted);"><strong>Exemplos:</strong> Cupons de desconto (15% a 30%), frete grátis subsidiado, atendimento humano via mensagem ou telefone.</p>
+      <p style="font-size:0.88rem; color:var(--text);"><strong>Justificativa:</strong> Contatos incorretos canibalizam a margem ou consomem horas de atendentes. A Floresta Aleatória atinge 55,6% de precisão e elimina 45 abordagens desnecessárias em relação ao XGBoost.</p>
+    </div>
+    <div class="case">
+      <h3>3. Governança e Prestação de Contas</h3>
+      <p style="font-size:0.92rem;"><strong>Modelo: Regressão Logística</strong></p>
+      <p style="font-size:0.88rem; color:var(--muted);"><strong>Exemplos:</strong> Apresentações a comitês executivos, áreas jurídicas e de conformidade.</p>
+      <p style="font-size:0.88rem; color:var(--text);"><strong>Justificativa:</strong> Fornece pesos com sinal explícito — cada unidade padronizada em <code>Valor de Página</code> eleva a probabilidade de compra em +2,21; mês de novembro, +0,70; taxas de saída reduzem em −0,61.</p>
+    </div>
+  </div>
+
+  <div class="destaque" style="margin-top:2.5rem;">
+    <strong>Variável Mais Influente: Valor de Página (<code>PageValues</code>)</strong>
+    <p>O estudo comprovou que o indicador de valor das páginas visitadas é o preditor mais decisivo nos três modelos: <strong>42% de importância na Floresta Aleatória</strong> e <strong>30% no XGBoost</strong>, seguido pelo efeito sazonal de novembro (Black Friday).</p>
+    <p style="margin-top:0.5rem; font-size:0.9rem; color:var(--muted);"><strong>Diretriz Técnica:</strong> Para operacionalizar o modelo em tempo real, a equipe de engenharia deve assegurar que esse indicador seja calculado em fluxo contínuo durante a sessão, possibilitando o disparo da ação antes que o visitante abandone a loja.</p>
+  </div>
+
+  <div style="margin-top:2rem; padding:1.25rem; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+    <div>
+      <strong style="font-size:1rem;">Deseja aprofundar nos dados técnicos ou simular cenários de retorno financeiro?</strong>
+      <div style="font-size:0.88rem; color:var(--muted); margin-top:0.25rem;">Acesse os detalhes metodológicos ou ajuste os valores na calculadora financeira interativa:</div>
+    </div>
+    <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+      <button class="theme-btn" type="button" onclick="showPanel('insights')">Calculadora de Retorno ➔</button>
+      <button class="theme-btn" type="button" onclick="showPanel('xgb')">Detalhes do XGBoost ➔</button>
+      <button class="theme-btn" type="button" onclick="showPanel('geral')">Exploração dos Dados ➔</button>
+    </div>
+  </div>
+</section>
+
+<section id="panel-geral" class="panel" role="tabpanel" hidden>
   <h2>Visão geral do projeto</h2>
   <p class="lead">O objetivo é estimar, a partir do comportamento de navegação, se uma sessão de um site de comércio eletrônico terminará em compra. A variável-alvo, <em>Revenue</em>, vale 1 quando há compra e 0 quando não há.</p>
   <div class="destaque"><strong>Questão de pesquisa</strong><p>Modelos não lineares (Random Forest e XGBoost) discriminam compradores de não compradores melhor do que o modelo linear de referência? E qual oferece o melhor equilíbrio entre desempenho, estabilidade e interpretabilidade?</p></div>

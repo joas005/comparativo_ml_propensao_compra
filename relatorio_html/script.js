@@ -121,8 +121,24 @@ function opts(c,{x,y,horizontal=false,legend=false,min=0,max}={}){
     plugins:{legend:{display:legend,labels:{color:c.text,boxWidth:12}},tooltip:{}},
     scales:horizontal?{x:num,y:cat}:{x:cat,y:num}};
 }
-const FUNCS = {geral:[], avaliacao:[], lr:[], rf:[], xgb:[], insights:[]};
+const FUNCS = {executivo:[], geral:[], avaliacao:[], lr:[], rf:[], xgb:[], insights:[]};
 const live = {}, dirty = {};
+
+FUNCS.executivo.push(c => new Chart('c-executivo',{type:'bar',
+  data:{
+    labels:['AUC-ROC (Discriminação)','Recall (Captura de Compras)','Precisão (Assertividade)'],
+    datasets:[
+      {label:'Regressão Logística',data:[MODELOS.lr.teste.auc*100,MODELOS.lr.teste.rec*100,MODELOS.lr.teste.prec*100],backgroundColor:c.neutral2,borderRadius:3},
+      {label:'Random Forest',data:[MODELOS.rf.teste.auc*100,MODELOS.rf.teste.rec*100,MODELOS.rf.teste.prec*100],backgroundColor:c.neutral,borderRadius:3},
+      {label:'XGBoost (Campeão)',data:[MODELOS.xgb.teste.auc*100,MODELOS.xgb.teste.rec*100,MODELOS.xgb.teste.prec*100],backgroundColor:c.accent,borderRadius:3}
+    ]
+  },
+  options:{...opts(c,{x:'Métrica Estratégica no Teste',y:'Desempenho (%)',legend:true,max:100}),
+    plugins:{legend:{display:true,labels:{color:c.text,boxWidth:12}},
+      tooltip:{callbacks:{label:i=>`${i.dataset.label}: ${i.raw.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})}%`}}
+    }
+  }
+}));
 
 FUNCS.geral.push(c => new Chart('c-revenue',{type:'bar',
   data:{labels:REVENUE.labels,datasets:[{data:REVENUE.qtd,backgroundColor:[c.neutral,c.accent],borderRadius:3}]},
@@ -245,4 +261,4 @@ let tema='light'; try{tema=localStorage.getItem('tema')||'light'}catch(e){}
 document.documentElement.setAttribute('data-theme',tema);
 setTheme(tema);
 const inicio = location.hash.slice(1);
-showPanel(FUNCS[inicio]?inicio:'geral');
+showPanel(FUNCS[inicio]?inicio:'executivo');
