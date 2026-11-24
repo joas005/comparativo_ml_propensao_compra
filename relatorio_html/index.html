@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Propensão de compra online — Relatório de Machine Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><div class="top-inner">
+  <div>
+    <h1>Previsão de compra em sessões de e-commerce</h1>
+    <p>Comparação entre Regressão Logística, Random Forest e XGBoost</p>
+  </div>
+  <button id="themeBtn" class="theme-btn" type="button" aria-pressed="false">Modo escuro</button>
+</div></header>
+
+<div class="tabs-wrap"><nav class="tabs" role="tablist" aria-label="Seções do relatório">
+  <button class="tab" role="tab" data-panel="geral">Visão geral e dados</button>
+  <button class="tab" role="tab" data-panel="avaliacao">Protocolo de avaliação</button>
+  <button class="tab" role="tab" data-panel="lr">Regressão Logística</button>
+  <button class="tab" role="tab" data-panel="rf">Random Forest</button>
+  <button class="tab" role="tab" data-panel="xgb">XGBoost</button>
+  <button class="tab" role="tab" data-panel="insights">Insights e conclusão</button>
+</nav></div>
+
+<main>
+<section id="panel-geral" class="panel" role="tabpanel">
+  <h2>Visão geral do projeto</h2>
+  <p class="lead">O objetivo é estimar, a partir do comportamento de navegação, se uma sessão de um site de comércio eletrônico terminará em compra. A variável-alvo, <em>Revenue</em>, vale 1 quando há compra e 0 quando não há.</p>
+  <div class="destaque"><strong>Questão de pesquisa</strong><p>Modelos não lineares (Random Forest e XGBoost) discriminam compradores de não compradores melhor do que o modelo linear de referência? E qual oferece o melhor equilíbrio entre desempenho, estabilidade e interpretabilidade?</p></div>
+  <p>Prever essa propensão permite priorizar ações de marketing (cupons, remarketing, contato ativo) sobre as sessões com maior chance de conversão. Três algoritmos foram comparados com os mesmos dados, a mesma divisão e a mesma estratégia de validação: <strong>Regressão Logística</strong> (referência simples e interpretável), <strong>Random Forest</strong> (conjunto de árvores, captura relações não lineares) e <strong>XGBoost</strong> (<em>boosting</em>, árvores construídas em sequência). A base é o <em>Online Shoppers Purchasing Intention Dataset</em> (Sakar e Kastro, 2018; UCI Machine Learning Repository).</p>
+
+  <div class="grid two">
+    <div>
+      <dl class="facts" id="facts"></dl>
+      <div class="note">Todos os valores desta página vêm da execução do notebook <code>tgi_propensao_compra.ipynb</code> e dos arquivos exportados para <code>output/</code>.</div>
+    </div>
+    <figure class="fig"><div class="chart-box"><canvas id="c-revenue" role="img" aria-label="Distribuição da variável-alvo Revenue"></canvas></div>
+      <figcaption>Classes desbalanceadas: apenas 15,5% das sessões terminam em compra.</figcaption></figure>
+  </div>
+
+  <h2 style="margin-top:2.5rem">Tratamento dos dados</h2>
+
+  <h3>Carga, validação e qualidade</h3>
+  <p>A base tem 12.330 linhas e 18 colunas (17 preditores e a variável-alvo), coincidindo com a referência da UCI. <em>Revenue</em> é convertida para 0/1 por uma função que valida os valores aceitos (booleanos, 0/1 ou textos equivalentes) e gera erro para qualquer outro valor; a conversão direta com <code>astype(bool)</code> foi evitada porque classificaria a string “False” como verdadeira.</p>
+  <p>Não há valores ausentes nem infinitos em nenhuma coluna. Mesmo assim, o código prevê o tratamento: infinitos seriam convertidos em ausentes na cópia de modelagem e imputados dentro do pipeline. Foram detectadas <strong>125 linhas integralmente duplicadas (1,01%)</strong>, que foram <strong>mantidas</strong>: sem identificador de sessão, não é possível afirmar que linhas idênticas sejam o mesmo evento. Essa escolha é registrada como limitação metodológica, e não houve segunda rodada de modelos sem duplicidades.</p>
+
+  <h3>Valores extremos (regra do IQR)</h3>
+  <p>Os valores extremos foram quantificados pelo intervalo interquartil, mas <strong>não foram removidos, limitados nem transformados</strong>: sem contexto adicional, não há base para tratá-los como erros, e as distribuições são naturalmente assimétricas (figura ao final desta seção). A padronização numérica ocorre apenas no modelo linear.</p>
+  <div class="grid two">
+    <div class="table-wrap"><table id="t-out"></table></div>
+    <figure class="fig"><div class="chart-box tall"><canvas id="c-outliers" role="img" aria-label="Percentual de outliers por variável numérica"></canvas></div></figure>
+  </div>
+
+  <h3>Definição dos atributos</h3>
+  <p>As 10 variáveis numéricas são <em>Administrative</em>, <em>Administrative_Duration</em>, <em>Informational</em>, <em>Informational_Duration</em>, <em>ProductRelated</em>, <em>ProductRelated_Duration</em>, <em>BounceRates</em>, <em>ExitRates</em>, <em>PageValues</em> e <em>SpecialDay</em>. As 7 categóricas estão abaixo. Os códigos de <em>OperatingSystems</em>, <em>Browser</em>, <em>Region</em> e <em>TrafficType</em> são identificadores, não quantidades, e por isso foram tratados como categorias. Após o <em>one-hot</em>, as 65 colunas binárias somadas às 10 numéricas resultam em <strong>75 variáveis</strong> de entrada.</p>
+  <div class="table-wrap"><table id="t-cat"></table></div>
+
+  <h3>Pré-processamento dentro do pipeline</h3>
+  <p>Todas as transformações são etapas do <code>Pipeline</code> (<code>preprocessador</code> + <code>modelo</code>) e são ajustadas apenas com os dados de treino de cada fold da validação cruzada. Nenhum imputador, codificador ou escalador foi ajustado antes da divisão, e o conjunto de teste não participou de decisões de tratamento nem de seleção de hiperparâmetros.</p>
+  <div class="table-wrap"><table class="spec"><thead><tr><th>Modelo</th><th>Variáveis numéricas</th><th>Variáveis categóricas</th></tr></thead><tbody>
+    <tr><td>Regressão Logística</td><td>Imputação pela mediana + <code>StandardScaler</code></td><td>Imputação pela categoria mais frequente + <code>OneHotEncoder(handle_unknown="ignore")</code></td></tr>
+    <tr><td>Random Forest e XGBoost</td><td>Imputação pela mediana, sem padronização (desnecessária para árvores)</td><td>Igual ao anterior</td></tr></tbody></table></div>
+
+  <h3>Desbalanceamento e divisão dos dados</h3>
+  <p>A distribuição original foi preservada: não se usou SMOTE nem sub ou sobreamostragem. O desbalanceamento é tratado por pesos: <code>class_weight="balanced"</code> na Regressão Logística e no Random Forest, e <code>scale_pos_weight = 5,4640</code> no XGBoost (negativos ÷ positivos, calculado somente em <code>y_train</code>: 8.338 ÷ 1.526). Os pesos ajudam a considerar a classe minoritária, mas não dispensam a leitura de precisão, recall, F1 e matrizes de confusão.</p>
+  <p>A divisão é um <em>holdout</em> estratificado de 80%/20% com <code>random_state=42</code>, o que manteve a proporção de compras praticamente idêntica nos dois conjuntos.</p>
+  <div class="table-wrap"><table id="t-split"></table></div>
+  <figure class="fig"><img src="../output/distribuicoes_variaveis_numericas.png" alt="Histogramas das dez variáveis numéricas, quase todos concentrados perto de zero" loading="lazy">
+    <figcaption>Distribuições das variáveis numéricas: concentração próxima de zero e caudas longas à direita, o que explica a alta proporção de valores extremos pelo IQR.</figcaption></figure>
+</section>
+
+<section id="panel-avaliacao" class="panel" role="tabpanel" hidden>
+  <h2>Protocolo de avaliação</h2>
+  <p class="lead">Os três modelos foram otimizados e avaliados exatamente da mesma forma: a validação cruzada escolhe os hiperparâmetros e o conjunto de teste, mantido isolado, mede o desempenho final.</p>
+  <div class="table-wrap"><table class="spec"><thead><tr><th>Etapa</th><th>Configuração</th></tr></thead><tbody>
+    <tr><td>Divisão</td><td>Holdout estratificado: 9.864 sessões de treino e 2.466 de teste (<code>random_state=42</code>)</td></tr>
+    <tr><td>Validação cruzada</td><td><code>StratifiedKFold</code> com 5 folds, <code>shuffle=True</code> e <code>random_state=42</code>, aplicada somente ao treino</td></tr>
+    <tr><td>Busca de hiperparâmetros</td><td><code>GridSearchCV</code> com <code>refit="roc_auc"</code>; paralelismo (<code>n_jobs=-1</code>) apenas na busca, com os estimadores em um processo</td></tr>
+    <tr><td>Métricas na validação</td><td>AUC-ROC, F1, precisão, recall e acurácia, todas calculadas em cada fold e então promediadas</td></tr>
+    <tr><td>Espaço de busca</td><td>3 (Regressão Logística) + 8 (Random Forest) + 8 (XGBoost) = 19 combinações × 5 folds = 95 ajustes, além do reajuste final de cada busca</td></tr>
+    <tr><td>Critério de seleção</td><td>AUC-ROC média da validação cruzada (principal); F1 (secundário)</td></tr>
+    <tr><td>Limiar de classificação</td><td>0,5 fixo sobre as probabilidades previstas, sem otimização no teste</td></tr>
+    <tr><td>Avaliação final</td><td>Melhor pipeline de cada modelo aplicado uma única vez ao teste; <code>zero_division=0</code> nas métricas que dependem de previsões da classe positiva</td></tr>
+    <tr><td>Reprodutibilidade</td><td><code>RANDOM_STATE = 42</code> em todas as etapas aplicáveis</td></tr></tbody></table></div>
+
+  <div class="destaque"><strong>Princípio de isolamento</strong><p>O conjunto de teste só é consultado depois que a validação cruzada define a melhor configuração de cada modelo. Assim, o teste estima o desempenho em dados novos sem ter influenciado nenhuma escolha.</p></div>
+
+  <h3>Métricas utilizadas</h3>
+  <p>Na matriz de confusão, um <strong>falso positivo (FP)</strong> é uma sessão prevista como compra que não comprou; um <strong>falso negativo (FN)</strong> é uma compra real não identificada. VP e VN são os acertos nas classes compra e não compra.</p>
+  <div class="table-wrap"><table class="spec"><thead><tr><th>Métrica</th><th>Definição</th><th>Como interpretar</th></tr></thead><tbody>
+    <tr><td>AUC-ROC</td><td>Área sob a curva ROC, calculada com as probabilidades</td><td>Chance de um comprador sortear um escore maior que o de um não comprador; independe do limiar</td></tr>
+    <tr><td>Precisão</td><td>VP ÷ (VP + FP)</td><td>Entre as sessões sinalizadas como compra, quantas realmente compraram</td></tr>
+    <tr><td>Recall</td><td>VP ÷ (VP + FN)</td><td>Entre os compradores reais, quantos foram identificados</td></tr>
+    <tr><td>F1</td><td>2 × precisão × recall ÷ (precisão + recall)</td><td>Média harmônica; penaliza desequilíbrio entre precisão e recall</td></tr>
+    <tr><td>Acurácia</td><td>(VP + VN) ÷ total</td><td>Proporção de acertos; enganosa com 84,5% de “não compra”</td></tr></tbody></table></div>
+
+  <h3>Hiperparâmetros fixos e grades de busca</h3>
+  <div class="table-wrap"><table id="t-grades" class="spec"></table></div>
+
+  <h3>Como ler os resultados</h3>
+  <ul class="bullets">
+    <li><strong>Validação cruzada × teste.</strong> A média e o desvio-padrão entre folds mostram o desempenho esperado e sua variabilidade; o teste mostra o desempenho em dados nunca vistos. Diferenças pequenas entre os dois indicam boa generalização.</li>
+    <li><strong>Escolha pelo AUC, leitura pelo conjunto.</strong> O AUC-ROC seleciona a configuração, mas a decisão final considera F1, precisão, recall, matrizes de confusão, consistência, tempo e interpretabilidade.</li>
+    <li><strong>Importâncias não são comparáveis entre algoritmos.</strong> Coeficientes da logística (escala logarítmica, com sinal) e importâncias de árvores têm significados e escalas diferentes.</li>
+    <li><strong>Associação não é causa.</strong> As variáveis influentes descrevem padrões do modelo, não efeitos causais.</li>
+  </ul>
+</section>
+
+<section id="panel-lr" class="panel" role="tabpanel" hidden></section>
+<section id="panel-rf" class="panel" role="tabpanel" hidden></section>
+<section id="panel-xgb" class="panel" role="tabpanel" hidden></section>
+
+<section id="panel-insights" class="panel" role="tabpanel" hidden>
+  <h2>Discussão e conclusão</h2>
+  <div class="destaque"><strong>Resumo</strong>
+    <p><strong>Objetivo.</strong> Comparar Regressão Logística, Random Forest e XGBoost na previsão de compra em 12.330 sessões de e-commerce. <strong>Método.</strong> Pipeline sem vazamento, holdout estratificado 80/20, validação cruzada estratificada de 5 folds e busca em grade com critério principal de AUC-ROC. <strong>Resultados.</strong> O XGBoost obteve a maior AUC-ROC (93,4% na validação cruzada; 93,3% no teste) e o maior recall (84,6%); o Random Forest teve a maior precisão e o maior F1 na validação cruzada; a Regressão Logística teve o menor desempenho, mas é a mais interpretável. <strong>Conclusão.</strong> Os modelos não lineares superaram o linear de forma consistente; a diferença entre eles é pequena, e a escolha depende do custo relativo dos dois tipos de erro.</p></div>
+
+  <h3>Resultados comparativos</h3>
+  <div class="grid two">
+    <figure class="fig"><div class="chart-box tall"><canvas id="c-comp" role="img" aria-label="Comparação das métricas de teste entre os três modelos"></canvas></div>
+      <figcaption>Métricas no conjunto de teste (eixo de 0 a 100%).</figcaption></figure>
+    <figure class="fig"><img src="../output/curva_roc_comparativa.png" alt="Curvas ROC dos três modelos; XGBoost fica acima das demais" loading="lazy">
+      <figcaption>Curvas ROC no teste. XGBoost e Random Forest ficam próximos; a Regressão Logística fica abaixo na região intermediária.</figcaption></figure>
+  </div>
+  <div class="table-wrap"><table id="t-comp"></table></div>
+  <h3>Validação cruzada: média ± desvio-padrão entre folds</h3>
+  <div class="table-wrap"><table id="t-cv"></table></div>
+
+  <h3>Discussão</h3>
+  <ol class="steps">
+    <li><strong>Modelos não lineares superam o linear.</strong> No teste, a AUC-ROC do XGBoost é 3,8 p.p. maior que a da Regressão Logística, e a do Random Forest, 2,6 p.p. maior. Na validação cruzada, a diferença do XGBoost é de 2,8 p.p., várias vezes o desvio-padrão entre folds da logística (0,7 p.p.).</li>
+    <li><strong>XGBoost e Random Forest estão próximos.</strong> A diferença de AUC-ROC entre eles é de 0,5 p.p. na validação cruzada, da ordem de um desvio-padrão (0,4 p.p.), e de 1,1 p.p. no teste. A vantagem do XGBoost tem o mesmo sentido nas duas avaliações, mas não é decisiva.</li>
+    <li><strong>A diferença está no tipo de erro.</strong> Em relação ao Random Forest, o XGBoost identifica 24 compradores a mais (323 contra 299) ao custo de 45 falsos alarmes adicionais (284 contra 239).</li>
+    <li><strong>Generalização.</strong> A diferença entre AUC-ROC na validação cruzada e no teste é de 0,1 p.p. (XGBoost), 0,7 p.p. (Random Forest) e 1,1 p.p. (Regressão Logística): nenhum modelo apresenta sinal forte de sobreajuste.</li>
+    <li><strong>Um sinal domina todos os modelos.</strong> <em>PageValues</em> é a variável mais importante nos três (coeficiente 2,21 na logística; importância de 42% no Random Forest e 30% no XGBoost). Como é um indicador derivado do valor das páginas visitadas, convém verificar se estaria disponível no momento da decisão de marketing.</li>
+    <li><strong>Sazonalidade importa.</strong> <em>Month_Nov</em> tem efeito positivo na logística (+0,70) e, no XGBoost, novembro, março, maio e setembro somam cerca de 27% da importância.</li>
+    <li><strong>Acurácia não basta.</strong> No teste, a acurácia da Regressão Logística (84,5%) é igual à de classificar todas as sessões como “não compra”. O ganho dos modelos está em AUC-ROC, recall e F1.</li>
+  </ol>
+
+  <h3>Impacto financeiro estimado</h3>
+  <p>Para traduzir a diferença de acertos em valor, foi adotado um <strong>valor fixo hipotético por compra</strong>, pois a base não contém valores monetários. A simulação considera as 382 compras reais do conjunto de teste (2.466 sessões): cada compra identificada pelo modelo conta como uma venda capturada, e cada compra não identificada, como uma venda deixada escapar. Altere os valores abaixo para testar outros cenários.</p>
+  <div class="controles">
+    <label>Valor médio por compra (R$)<input id="in-ticket" type="number" min="0" step="10" value="200"></label>
+    <label>Custo por abordagem (R$), opcional<input id="in-custo" type="number" min="0" step="1" value="0"></label>
+  </div>
+  <div class="bn-hero" id="bn-hero" aria-live="polite"></div>
+  <div class="bn-cards" id="bn-cards"></div>
+  <div class="grid two">
+    <figure class="fig"><div class="chart-box"><canvas id="c-fin" role="img" aria-label="Resultado líquido estimado por modelo"></canvas></div>
+      <figcaption>Resultado estimado por modelo no conjunto de teste (R$).</figcaption></figure>
+    <div class="table-wrap"><table id="t-fin"></table></div>
+  </div>
+  <div class="note" id="bn-note"></div>
+
+  <div class="conclusao">
+    <h3>Conclusão do estudo</h3>
+    <ol>
+      <li>Segundo o critério definido de antemão (AUC-ROC média na validação cruzada, com F1 como desempate), o <strong>XGBoost é o modelo preferível</strong>: 93,4% de AUC-ROC na validação cruzada, 93,3% no teste e a menor diferença entre os dois (0,1 p.p.).</li>
+      <li>O <strong>Random Forest é uma alternativa equivalente</strong> em F1 no teste (65,0% contra 65,3%) e superior em precisão (55,6% contra 53,2%), com menos falsos alarmes.</li>
+      <li>A <strong>Regressão Logística</strong> tem desempenho inferior em todas as métricas de discriminação, mas oferece coeficientes com sinal e serve como referência explicável.</li>
+      <li>A hipótese de que modelos não lineares discriminam melhor do que o modelo linear foi <strong>sustentada</strong> pelos dados, tanto na validação cruzada quanto no teste. A superioridade do XGBoost sobre o Random Forest é pequena e não pode ser tratada como definitiva.</li>
+    </ol>
+    <p>Recomendação: adotar o XGBoost como modelo principal e manter a Regressão Logística como referência interpretável.</p>
+  </div>
+
+  <h3>Qual modelo usar em cada caso</h3>
+  <div class="cases">
+    <div class="case best"><h3>Capturar o máximo de compradores: XGBoost</h3><p>Maior AUC-ROC (93,3%) e maior recall (84,6%). Indicado para ações de baixo custo por contato, como remarketing e e-mails, em que perder um comprador é pior do que abordar um não comprador. É também o de busca mais rápida (2,1 s).</p></div>
+    <div class="case"><h3>Reduzir abordagens desperdiçadas: Random Forest</h3><p>Maior precisão (55,6%) e acurácia (86,9%) no teste, com F1 praticamente igual ao do XGBoost (65,0% contra 65,3%). Indicado quando cada contato tem custo, como descontos ou atendimento humano.</p></div>
+    <div class="case"><h3>Explicar para a área de negócio: Regressão Logística</h3><p>Desempenho inferior (AUC-ROC de 89,5%), porém com coeficientes que indicam direção e intensidade do efeito de cada variável. Indicada como referência e quando a transparência pesa mais que a performance.</p></div>
+  </div>
+
+  <h3>Limitações</h3>
+  <ul class="bullets">
+    <li>As 125 linhas duplicadas foram mantidas. Se duplicatas caírem em treino e teste ao mesmo tempo, o desempenho pode ficar levemente otimista; isso não foi verificado.</li>
+    <li>O teste é um único <em>holdout</em> com semente fixa (42); não há intervalo de confiança para as métricas finais.</li>
+    <li>O limiar de 0,5 é fixo e não foi ajustado, para não usar o teste na decisão.</li>
+    <li>A base não traz custos nem margens, portanto não é possível estimar benefício financeiro.</li>
+    <li>Coeficientes e importâncias de árvores têm significados e escalas diferentes e descrevem associações, não causalidade.</li>
+  </ul>
+
+  <h3>Referência</h3>
+  <p class="refs">Sakar, C. O.; Kastro, Y. (2018). <em>Online Shoppers Purchasing Intention Dataset</em>. UCI Machine Learning Repository. https://doi.org/10.24432/C5F88Q</p>
+</section>
+</main>
+<footer>Projeto realizado por joasescolar@gmail.com, 2701arthur@gmail.com e robertomessiasdalpino@gmail.com como Trabalho de Graduação Interdisciplinar (TGI) do curso de Ciência da Computação da Universidade Cruzeiro do Sul.<br>Dados: notebook <code>tgi_propensao_compra.ipynb</code> e arquivos CSV/PNG em <code>output/</code>. Gráficos interativos construídos com Chart.js.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
