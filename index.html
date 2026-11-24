@@ -2,10 +2,22 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=relatorio_html/">
-  <title>Redirecionando...</title>
+  <meta http-equiv="refresh" content="0; url=./relatorio_html/">
+  <title>Comparativo ML - Propensão de Compra</title>
+  <script>
+    (function () {
+      var caminho = window.location.pathname;
+      if (!caminho.endsWith('/')) {
+        caminho += '/';
+      }
+      window.location.replace(caminho + 'relatorio_html/' + window.location.search + window.location.hash);
+    })();
+  </script>
 </head>
-<body>
-  <p>Redirecionando para o relatório... <a href="relatorio_html/#geral">Clique aqui se não for redirecionado</a>.</p>
+<body style="font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: #f8fafc;">
+  <div style="text-align: center;">
+    <h2>Carregando o relatório...</h2>
+    <p>Se você não for redirecionado automaticamente em instantes, <a href="./relatorio_html/" style="color: #38bdf8;">clique aqui para acessar</a>.</p>
+  </div>
 </body>
 </html>
