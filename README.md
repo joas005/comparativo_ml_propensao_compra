@@ -123,16 +123,18 @@ flowchart TD
     A["Base Bruta (12.330 sessões)"] --> B["Validação e Tipagem dos Atributos"]
     B --> C["Holdout Estratificado (80/20, random_state=42)"]
     
-    C -->|80% (9.864 sessões)| D["Conjunto de Treinamento"]
-    C -->|20% (2.466 sessões)| E["Conjunto de Teste (Isolado)"]
+    C -->|"80% (9.864 sessões)"| D["Conjunto de Treinamento"]
+    C -->|"20% (2.466 sessões)"| E["Conjunto de Teste (Isolado)"]
     
-    subgraph Treino_e_Otimizacao ["Ambiente de Treino & Otimização"]
+    subgraph Treino_e_Otimizacao ["Ambiente de Treino e Otimização"]
         D --> F["StratifiedKFold (5 Folds)"]
         F --> G["Pipeline de Pré-processamento"]
         G --> H["Imputação Mediana / Categoria Frequente"]
         G --> I["StandardScaler (apenas Regressão Logística)"]
         G --> J["One-Hot Encoding (75 atributos finais)"]
-        H & I & J --> K["GridSearchCV (19 combinações = 95 fits)"]
+        H --> K["GridSearchCV (19 combinações = 95 fits)"]
+        I --> K
+        J --> K
         K --> L["Critério Principal: Maximizar AUC-ROC média"]
     end
     
@@ -262,15 +264,15 @@ A escolha do modelo a ser colocado em produção depende da estrutura de custos 
 flowchart TD
     Q1{"Qual é o custo por abordagem ao cliente?"}
     
-    Q1 -->|Baixo Custo <br> E-mail, Push, Remarketing| A["Recomendação: XGBoost"]
+    Q1 -->|"Baixo Custo (E-mail, Push, Remarketing)"| A["Recomendação: XGBoost"]
     A --> A1["Maximiza Recall (84,56%)"]
     A1 --> A2["Perder cliente custa mais que disparar mensagem"]
     
-    Q1 -->|Alto Custo <br> Desconto agressivo, SDR humano| B["Recomendação: Random Forest"]
+    Q1 -->|"Alto Custo (Desconto agressivo, SDR humano)"| B["Recomendação: Random Forest"]
     B --> B1["Maximiza Precisão (55,58%)"]
     B1 --> B2["Evita desperdício financeiro de falsos positivos"]
     
-    Q1 -->|Exigência de Auditoria / Explicabilidade| C["Recomendação: Regressão Logística"]
+    Q1 -->|"Exigência de Auditoria / Explicabilidade"| C["Recomendação: Regressão Logística"]
     C --> C1["Coeficientes lineares claros para diretoria"]
 ```
 
