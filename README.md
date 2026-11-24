@@ -4,8 +4,19 @@
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.3%2B-orange.svg)](https://scikit-learn.org/)
 [![XGBoost](https://img.shields.io/badge/XGBoost-2.0%2B-red.svg)](https://xgboost.readthedocs.io/)
 [![Pandas](https://img.shields.io/badge/pandas-2.0%2B-150458.svg)](https://pandas.pydata.org/)
+[![Live Demo](https://img.shields.io/badge/GitHub%20Pages-Dashboard%20Online-brightgreen.svg?logo=github)](https://joas005.github.io/comparativo_ml_propensao_compra/)
 [![Status](https://img.shields.io/badge/status-conclu%C3%ADdo-brightgreen.svg)]()
 [![Academic](https://img.shields.io/badge/TCC%2FTGI-Ci%C3%AAncia%20da%20Computa%C3%A7%C3%A3o-informational.svg)]()
+
+---
+
+> ### 🌐 [Acesse o Dashboard Interativo Online (GitHub Pages)](https://joas005.github.io/comparativo_ml_propensao_compra/)
+> **Experimente os resultados diretamente no navegador sem precisar instalar nada:**  
+> Navegue pelas métricas de validação e teste, explore as **curvas ROC comparativas**, gráficos dinâmicos de importância de atributos desenvolvidos com Chart.js, matrizes de confusão detalhadas e simule cenários de negócio personalizados com a **Calculadora de Impacto Financeiro (ROI)**:  
+> 
+> 👉 **[https://joas005.github.io/comparativo_ml_propensao_compra/](https://joas005.github.io/comparativo_ml_propensao_compra/)**
+
+---
 
 > **Trabalho de Graduação Interdisciplinar (TGI II / TCC)**  
 > **Curso:** Bacharelado em Ciência da Computação  
@@ -19,9 +30,8 @@
 
 ## 📋 Sumário
 
-- [Comparação de Modelos Preditivos na Estimativa da Propensão de Compra no Varejo](#comparação-de-modelos-preditivos-na-estimativa-da-propensão-de-compra-no-varejo)
-  - [📋 Sumário](#-sumário)
-  - [1. Visão Geral do Projeto](#1-visão-geral-do-projeto)
+- [🚀 Dashboard Interativo Online (GitHub Pages)](#-acesse-o-dashboard-interativo-online-github-pages)
+- [1. Visão Geral do Projeto](#1-visão-geral-do-projeto)
     - [1.1 Contexto e Justificativa de Negócio](#11-contexto-e-justificativa-de-negócio)
     - [1.2 Questão de Pesquisa e Hipótese](#12-questão-de-pesquisa-e-hipótese)
   - [2. Conjunto de Dados (Dataset)](#2-conjunto-de-dados-dataset)
@@ -373,13 +383,19 @@ Abra o arquivo [`tgi_propensao_compra.ipynb`](tgi_propensao_compra.ipynb) e exec
 
 ### 9.4 Visualização do Relatório Web Interativo
 
-Para abrir o relatório interativo com visualizações em Chart.js e simulador de impacto financeiro:
-- Basta abrir o arquivo [`relatorio_html/index.html`](relatorio_html/index.html) diretamente em seu navegador web.
-- Ou iniciar um servidor local simples via Python:
-  ```bash
-  python -m http.server 8000 --directory relatorio_html
-  ```
-  E acessar no navegador: `http://localhost:8000`.
+Você pode acessar o relatório de duas formas:
+
+1. **Acesso Direto Online (Recomendado):**  
+   O relatório está hospedado publicamente no GitHub Pages:  
+   👉 **[https://joas005.github.io/comparativo_ml_propensao_compra/](https://joas005.github.io/comparativo_ml_propensao_compra/)**
+
+2. **Execução Local:**
+   - Abrir o arquivo [`relatorio_html/index.html`](relatorio_html/index.html) diretamente no seu navegador web.
+   - Ou iniciar um servidor local simples via Python:
+     ```bash
+     python -m http.server 8000 --directory relatorio_html
+     ```
+     E acessar no navegador: `http://localhost:8000`.
 
 ---
 
