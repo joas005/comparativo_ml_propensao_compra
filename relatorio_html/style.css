@@ -311,3 +311,39 @@ footer{
    Preferência de movimento reduzido
    ═══════════════════════════════════════ */
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Identidade visual: logo Propensão de Compra */
+.brand-lockup,
+.executive-brand,
+.section-brand,
+.conclusion-brand {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  min-width: 0;
+}
+
+.brand-logo {
+  display: block;
+  object-fit: contain;
+  flex: none;
+}
+
+.brand-logo-header { width: 42px; height: 42px; }
+.brand-logo-executive { width: 68px; height: 68px; }
+.brand-logo-section { width: 34px; height: 34px; }
+.brand-logo-conclusion { width: 38px; height: 38px; }
+
+.executive-brand { align-items: flex-start; }
+.section-brand h2,
+.conclusion-brand h2 { margin-top: 0; }
+
+@media (max-width: 699px) {
+  .brand-lockup { gap: .6rem; }
+  .brand-logo-header { width: 34px; height: 34px; }
+  .brand-logo-executive { width: 52px; height: 52px; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .brand-logo { filter: drop-shadow(0 1px 2px rgba(0,0,0,.18)); }
+}

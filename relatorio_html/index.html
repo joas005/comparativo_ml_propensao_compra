@@ -15,9 +15,12 @@
 </head>
 <body>
 <header class="top"><div class="top-inner">
-  <div>
+  <div class="brand-lockup">
+    <img class="brand-logo brand-logo-header" src="../favicon_propensao_compra.svg" alt="Logo Propensão de Compra">
+    <div>
     <h1>Previsão de compra em sessões de e-commerce</h1>
     <p>Comparação entre Regressão Logística, Random Forest e XGBoost</p>
+    </div>
   </div>
   <button id="themeBtn" class="theme-btn" type="button" aria-pressed="false">Modo escuro</button>
 </div></header>
@@ -35,10 +38,12 @@
 <main>
 <section id="panel-executivo" class="panel" role="tabpanel">
   <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; border-bottom:1px solid var(--line); padding-bottom:1rem;">
-    <div>
+    <div class="executive-brand">
+      <div>
       <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--accent); display:block; margin-bottom:0.25rem;">Reporte Executivo • TCC Ciência da Computação</span>
       <h2 style="margin:0; font-size:1.8rem;">Sumário Executivo do Estudo</h2>
       <p style="color:var(--muted); margin:0.3rem 0 0; font-size:0.95rem;">Previsão de Propensão de Compra e Alocação Estratégica de Recursos no Varejo Digital</p>
+      </div>
     </div>
     <div style="text-align:right; font-size:0.85rem; color:var(--muted);">
       <div><strong>Autores:</strong> A. Lima, J. Ferreira, R. Dalpino</div>
@@ -294,7 +299,10 @@
 <section id="panel-xgb" class="panel" role="tabpanel" hidden></section>
 
 <section id="panel-insights" class="panel" role="tabpanel" hidden>
-  <h2>Discussão e conclusão</h2>
+  <div class="section-brand">
+    <img class="brand-logo brand-logo-section" src="../favicon_propensao_compra.svg" alt="" aria-hidden="true">
+    <h2>Discussão e conclusão</h2>
+  </div>
   <div class="destaque"><strong>Resumo</strong>
     <p><strong>Objetivo.</strong> Comparar Regressão Logística, Random Forest e XGBoost na previsão de compra em 12.330 sessões de e-commerce. <strong>Método.</strong> Pipeline sem vazamento, holdout estratificado 80/20, validação cruzada estratificada de 5 folds e busca em grade com critério principal de AUC-ROC. <strong>Resultados.</strong> O XGBoost obteve a maior AUC-ROC (93,4% na validação cruzada; 93,3% no teste) e o maior recall (84,6%); o Random Forest teve a maior precisão e o maior F1 na validação cruzada; a Regressão Logística teve o menor desempenho, mas é a mais interpretável. <strong>Conclusão.</strong> Os modelos não lineares superaram o linear de forma consistente; a diferença entre eles é pequena, e a escolha depende do custo relativo dos dois tipos de erro.</p></div>
 
@@ -336,7 +344,10 @@
   <div class="note" id="bn-note"></div>
 
   <div class="conclusao">
-    <h3>Conclusão do estudo</h3>
+    <div class="conclusion-brand">
+      <img class="brand-logo brand-logo-conclusion" src="../favicon_propensao_compra.svg" alt="" aria-hidden="true">
+      <h3>Conclusão do estudo</h3>
+    </div>
     <ol>
       <li>Segundo o critério definido de antemão (AUC-ROC média na validação cruzada, com F1 como desempate), o <strong>XGBoost é o modelo preferível</strong>: 93,4% de AUC-ROC na validação cruzada, 93,3% no teste e a menor diferença entre os dois (0,1 p.p.).</li>
       <li>O <strong>Random Forest é uma alternativa equivalente</strong> em F1 no teste (65,0% contra 65,3%) e superior em precisão (55,6% contra 53,2%), com menos falsos alarmes.</li>
